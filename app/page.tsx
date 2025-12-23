@@ -282,7 +282,6 @@ export default function GlassStylePage() {
   const [ipInfo, setIpInfo] = useState({ ip: '...', country: 'US' });
   const [isInitialized, setIsInitialized] = useState(false);
   const [isImmersive, setIsImmersive] = useState(false);
-  const [bgLoaded, setBgLoaded] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [inboxStatus, setInboxStatus] = useState<'idle' | 'opening'>('idle');
   
@@ -396,63 +395,38 @@ export default function GlassStylePage() {
 
   return (
     <div className="min-h-screen relative font-sans text-white pb-10 selection:bg-blue-400/30 overflow-x-hidden">
-      
+
       {/* 免费提示弹窗 */}
       <FreeNoticeModal />
-      
-      {/* 背景层 */}
-      <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#312e81]">
-        <img 
-          src="https://loliapi.com/acg/" 
-          alt="background" 
-          className={`w-full h-full object-cover transition-opacity duration-1000 ${bgLoaded ? 'opacity-100' : 'opacity-0'}`}
-          loading="eager"
-          onLoad={() => setBgLoaded(true)}
-        />
-      </div>
-      
+
       {/* 沉浸模式恢复层 */}
       {isImmersive && (
-        <div 
-          className="fixed inset-0 z-30 cursor-pointer touch-manipulation" 
+        <div
+          className="fixed inset-0 z-30 cursor-pointer touch-manipulation"
           onClick={() => setIsImmersive(false)}
         />
       )}
 
-      {/* 内容层 */}
-      <div className="relative z-10">
-        
-        {/* 头部 */}
-        <header className="fixed top-0 left-0 right-0 h-[52px] z-40 flex items-center justify-between px-4 pt-2 transition-all duration-300">
-          <h1 
-            onClick={toggleImmersive}
-            className={`text-[17px] font-semibold text-white tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] cursor-pointer select-none transition-all duration-300 active:scale-95 touch-manipulation ${
-              isImmersive ? 'opacity-50' : 'opacity-100'
-            }`}
-          >
-            脸书小助手
-          </h1>
-          
-          <div 
-            className={`flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full bg-black/40 border border-white/20 shadow-lg transition-all duration-500 ${
-              isImmersive ? 'opacity-0 translate-x-10 pointer-events-none' : 'opacity-100 translate-x-0'
-            }`}
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] shadow-[0_0_6px_rgba(52,199,89,1)] animate-pulse" />
-            <span className="text-[11px] font-semibold text-white/95 font-mono tracking-tight drop-shadow-md">
-              {ipInfo.ip}
-            </span>
-          </div>
-        </header>
-
-        {/* 主内容 */}
-        <main 
-          className={`max-w-[420px] mx-auto px-5 pt-24 pb-10 space-y-6 transition-all duration-500 ${
-            isImmersive 
-              ? 'opacity-0 translate-y-[100px] pointer-events-none scale-95' 
-              : 'opacity-100 translate-y-0 scale-100'
+      {/* IP 信息显示 */}
+      <div className="fixed top-4 right-4 z-40 transition-all duration-500">
+        <div
+          className={`flex items-center gap-1.5 pl-2 pr-2.5 py-1 rounded-full bg-black/40 backdrop-blur-xl border border-white/20 shadow-lg transition-all duration-500 ${
+            isImmersive ? 'opacity-0 translate-x-10 pointer-events-none' : 'opacity-100 translate-x-0'
           }`}
         >
+          <div className="w-1.5 h-1.5 rounded-full bg-[#34C759] shadow-[0_0_6px_rgba(52,199,89,1)] animate-pulse" />
+          <span className="text-[11px] font-semibold text-white/95 font-mono tracking-tight drop-shadow-md">
+            {ipInfo.ip}
+          </span>
+        </div>
+      </div>
+
+      {/* 主内容 */}
+      <main className={`max-w-[420px] mx-auto px-5 pt-24 pb-10 space-y-6 transition-all duration-500 ${
+        isImmersive
+          ? 'opacity-0 translate-y-[100px] pointer-events-none scale-95'
+          : 'opacity-100 translate-y-0 scale-100'
+      }`}>
           
           {!isInitialized ? (
             <div className="flex flex-col items-center justify-center py-32 space-y-4">
@@ -594,43 +568,42 @@ export default function GlassStylePage() {
             </>
           )}
         </main>
-      </div>
 
-      {/* 底部弹窗 */}
-      <BottomSheet 
-        isOpen={showCountrySheet} 
-        onClose={() => setShowCountrySheet(false)} 
-        title="选择地区"
-      >
-        <CountryList 
-          countries={countries} 
-          selectedCode={selectedCountry.code} 
-          onSelect={handleCountrySelect} 
-        />
-      </BottomSheet>
+        {/* 底部弹窗 */}
+        <BottomSheet
+          isOpen={showCountrySheet}
+          onClose={() => setShowCountrySheet(false)}
+          title="选择地区"
+        >
+          <CountryList
+            countries={countries}
+            selectedCode={selectedCountry.code}
+            onSelect={handleCountrySelect}
+          />
+        </BottomSheet>
 
-      <BottomSheet 
-        isOpen={showDomainSheet} 
-        onClose={() => setShowDomainSheet(false)} 
-        title="选择域名"
-        rightAction={
-          <button 
-            onClick={() => setShowDomainSheet(false)} 
-            className="text-[#409CFF] font-medium text-[15px] p-2 -mr-2 touch-manipulation hover:text-white transition-colors active:scale-95"
-          >
-            完成
-          </button>
-        }
-      >
-        <DomainList 
-          allDomains={allDomains} 
-          selectedDomain={selectedDomain} 
-          onSelect={handleDomainSelect} 
-        />
-      </BottomSheet>
+        <BottomSheet
+          isOpen={showDomainSheet}
+          onClose={() => setShowDomainSheet(false)}
+          title="选择域名"
+          rightAction={
+            <button
+              onClick={() => setShowDomainSheet(false)}
+              className="text-[#409CFF] font-medium text-[15px] p-2 -mr-2 touch-manipulation hover:text-white transition-colors active:scale-95"
+            >
+              完成
+            </button>
+          }
+        >
+          <DomainList
+            allDomains={allDomains}
+            selectedDomain={selectedDomain}
+            onSelect={handleDomainSelect}
+          />
+        </BottomSheet>
 
-      {/* 样式 */}
-      <style jsx global>{`
+        {/* 样式 */}
+        <style jsx global>{`
         * {
           -webkit-tap-highlight-color: transparent;
         }
